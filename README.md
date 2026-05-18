@@ -28,6 +28,15 @@ npm install
 npm run dev          # starts on port 5173
 ```
 
+## Deployment
+
+**Free deployment to production?** See [DEPLOYMENT.md](DEPLOYMENT.md) for a complete step-by-step guide using:
+- **Frontend:** Vercel (free)
+- **Backend:** Render (free)
+- **Database:** Neon PostgreSQL (free)
+
+Takes ~30 minutes to set up and scales as you grow.
+
 ## Architecture
 - **Frontend**: React 18 + Vite + Tailwind CSS 3 + Recharts + Zustand + React Router 6
 - **Backend**: Node.js + Express + Prisma ORM + PostgreSQL + JWT + Zod + bcrypt
