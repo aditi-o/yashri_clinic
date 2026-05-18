@@ -10,6 +10,27 @@
 
 ## Quick Start
 
+### Automated Setup (Recommended)
+
+**Windows:**
+```bash
+setup.bat
+```
+
+**Mac/Linux:**
+```bash
+chmod +x setup.sh
+./setup.sh
+```
+
+This script will:
+- Generate a secure JWT secret
+- Create `.env` files with templates
+- Install all dependencies
+- Provide next steps
+
+### Manual Setup
+
 ### Backend
 ```bash
 cd backend
@@ -36,6 +57,17 @@ npm run dev          # starts on port 5173
 - **Database:** Neon PostgreSQL (free)
 
 Takes ~30 minutes to set up and scales as you grow.
+
+## Security
+
+**Important:** Read [SECURITY.md](SECURITY.md) before deploying to production.
+
+This includes:
+- ✓ Vulnerability fixes (axios, dompurify, postcss, vite)
+- ✓ Security hardening (helmet, rate limiting)
+- ✓ Authentication best practices
+- ✓ Deployment security checklist
+- ✓ Ongoing security tasks
 
 ## Architecture
 - **Frontend**: React 18 + Vite + Tailwind CSS 3 + Recharts + Zustand + React Router 6
