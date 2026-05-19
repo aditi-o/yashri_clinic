@@ -90,7 +90,7 @@ export default function ReceptionistDashboard() {
             <button key={label} onClick={() => navigate(path)}
               className="card text-left group hover:shadow-lg transition-all hover:-translate-y-1" style={{ cursor: 'pointer' }}>
               <div className="flex items-center gap-2 sm:gap-3">
-                <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl flex items-center justify-center text-xl sm:text-2xl transition-transform group-hover:scale-110 flex-shrink-0"
+                <div className="w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12 rounded-2xl flex items-center justify-center text-sm sm:text-base lg:text-xl transition-transform group-hover:scale-110 flex-shrink-0"
                   style={{ background: bg }}>{icon}</div>
                 <div>
                   <p className="font-bold text-xs sm:text-sm" style={{ letterSpacing: '-0.01em' }}>{label}</p>

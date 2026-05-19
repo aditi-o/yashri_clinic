@@ -108,10 +108,16 @@
 
   .shell-page {
     flex: 1;
-    padding: 16px 20px;
+    padding: 12px 14px;
     max-width: 1400px;
     width: 100%;
     margin: 0 auto;
+  }
+
+  @media(min-width:375px) {
+    .shell-page {
+      padding: 14px 16px;
+    }
   }
 
   @media(min-width:640px) {
@@ -245,11 +251,18 @@
 
   .card {
     background: var(--surface);
-    border-radius: 14px;
+    border-radius: 12px;
     border: 1px solid var(--border);
     box-shadow: var(--sh);
-    padding: 1rem 1.25rem;
+    padding: 0.875rem 1rem;
     transition: box-shadow .2s, transform .2s;
+  }
+
+  @media(min-width:375px) {
+    .card {
+      border-radius: 13px;
+      padding: 0.95rem 1.15rem;
+    }
   }
 
   @media(min-width:640px) {
@@ -266,9 +279,24 @@
   }
 
   .badge {
-    @apply inline-flex items-center px-2 sm:px-2.5 py-0.5 rounded-full text-xs font-semibold;
+    @apply inline-flex items-center px-1.5 sm:px-2.5 py-0.5 rounded-full font-semibold;
+    font-size: 0.65rem;
     letter-spacing: .01em;
     white-space: nowrap;
+  }
+
+  @media(min-width:375px) {
+    .badge {
+      font-size: 0.7rem;
+      padding-left: 0.375rem;
+      padding-right: 0.375rem;
+    }
+  }
+
+  @media(min-width:640px) {
+    .badge {
+      font-size: 0.75rem;
+    }
   }
 
   .badge-blue {
@@ -307,14 +335,22 @@
   }
 
   .scard {
-    @apply card flex items-center gap-3 sm:gap-4;
-    padding: 1rem 1.25rem;
+    @apply card flex items-center gap-2.5 sm:gap-4;
+    padding: 0.875rem 1rem;
     transition: box-shadow .2s, transform .2s;
     overflow: hidden;
   }
 
+  @media(min-width:375px) {
+    .scard {
+      gap: 2.75rem;
+      padding: 0.95rem 1.15rem;
+    }
+  }
+
   @media(min-width:640px) {
     .scard {
+      gap: 1rem;
       padding: 1.25rem 1.5rem;
     }
   }
@@ -325,7 +361,15 @@
   }
 
   .scard-icon {
-    @apply w-10 h-10 sm:w-12 sm:h-12 rounded-2xl flex items-center justify-center text-lg sm:text-xl flex-shrink-0;
+    @apply w-9 h-9 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl flex items-center justify-center text-sm sm:text-lg lg:text-xl flex-shrink-0;
+  }
+
+  @media(min-width:375px) {
+    .scard-icon {
+      width: 36px;
+      height: 36px;
+      font-size: 0.875rem;
+    }
   }
 
   .tbl-wrap {
@@ -343,17 +387,37 @@
   }
 
   .tbl th {
-    @apply text-left px-3 sm:px-5 py-2.5 sm:py-3.5 text-xs font-semibold uppercase tracking-wide;
+    @apply text-left px-2.5 sm:px-5 py-2 sm:py-3.5 text-xs font-semibold uppercase tracking-wide;
     color: var(--text-muted);
+    border-bottom: 1px solid var(--border);
+    white-space: nowrap;
+    font-size: 0.65rem;
+  }
+
+  @media(min-width:375px) {
+    .tbl th {
+      padding: 0.5rem 0.75rem;
+      font-size: 0.7rem;
+    }
+  }
+
+  @media(min-width:640px) {
+    .tbl th {
+      font-size: 0.75rem;
+    }
+  }
+
+  .tbl td {
+    @apply px-2.5 sm:px-5 py-2 sm:py-3.5 text-xs;
+    color: var(--text);
     border-bottom: 1px solid var(--border);
     white-space: nowrap;
   }
 
-  .tbl td {
-    @apply px-3 sm:px-5 py-2.5 sm:py-3.5;
-    color: var(--text);
-    border-bottom: 1px solid var(--border);
-    white-space: nowrap;
+  @media(min-width:375px) {
+    .tbl td {
+      padding: 0.5rem 0.75rem;
+    }
   }
 
   .tbl tbody tr:last-child td {
@@ -374,11 +438,22 @@
 
   .ph-title {
     font-family: 'Plus Jakarta Sans', sans-serif;
-    font-size: 1rem;
-    sm: text-lg;
+    font-size: 0.9rem;
     font-weight: 800;
     color: var(--text);
     letter-spacing: -0.02em;
+  }
+
+  @media(min-width:375px) {
+    .ph-title {
+      font-size: 1rem;
+    }
+  }
+
+  @media(min-width:640px) {
+    .ph-title {
+      font-size: 1.125rem;
+    }
   }
 
   .ph-sub {

@@ -23,7 +23,7 @@ export function StatCard({ icon, label, value, accent = 'var(--brand)', bg = 'va
     <div className="scard">
       <div className="scard-icon transition-transform hover:scale-110" style={{ background: bg }}>
         {typeof icon === 'string'
-          ? <span style={{ fontSize: '1.25rem' }} className="sm:text-2xl">{icon}</span>
+          ? <span style={{ fontSize: 'inherit' }} className="text-sm sm:text-base lg:text-lg">{icon}</span>
           : icon}
       </div>
       <div className="min-w-0 flex-1">
