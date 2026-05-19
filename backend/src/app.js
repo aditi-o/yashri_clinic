@@ -41,11 +41,25 @@ const authLimiter = rateLimit({
   skipSuccessfulRequests: true, // don't count successful attempts
 });
 
-// CORS middleware
-app.use(cors({
-  origin: process.env.FRONTEND_URL || 'http://localhost:3000',
+// CORS middleware: support multiple allowed frontend origins via env
+// Set FRONTEND_URLS to a comma-separated list of allowed origins (or use FRONTEND_URL for single)
+const rawFrontendUrls = process.env.FRONTEND_URLS || process.env.FRONTEND_URL || 'http://localhost:3000';
+const FRONTEND_URLS = rawFrontendUrls.split(',').map(u => u.trim()).filter(Boolean);
+
+const corsOptions = {
+  origin: function (origin, callback) {
+    if (!origin) return callback(null, true); // allow non-browser tools like curl or same-origin requests
+    if (FRONTEND_URLS.indexOf(origin) !== -1) {
+      return callback(null, true);
+    }
+    return callback(new Error('CORS policy: origin not allowed - ' + origin));
+  },
   credentials: true,
-}));
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'Accept', 'Origin'],
+};
+
+app.use(cors(corsOptions));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -73,7 +87,8 @@ app.get('/', (req, res) => {
 });
 
 // API Routes
-app.use('/api/auth', authLimiter, authRoutes);
+// Mount auth routes on both /api/auth and /auth for backwards compatibility
+app.use(['/api/auth', '/auth'], authLimiter, authRoutes);
 app.use('/api/patients', patientRoutes);
 app.use('/api/doctors', doctorRoutes);
 app.use('/api/appointments', appointmentRoutes);
