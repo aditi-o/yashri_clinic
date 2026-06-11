@@ -20,6 +20,25 @@ const aiRoutes = require('./modules/ai/ai.routes');
 
 const app = express();
 
+// Render and similar platforms sit behind a proxy, so rate limiting needs the
+// forwarded client IP rather than the proxy address.
+const trustProxyEnv = process.env.TRUST_PROXY;
+let trustProxySetting = false;
+
+if (trustProxyEnv !== undefined) {
+  if (trustProxyEnv === 'true') {
+    trustProxySetting = true;
+  } else if (trustProxyEnv === 'false') {
+    trustProxySetting = false;
+  } else if (!Number.isNaN(Number(trustProxyEnv))) {
+    trustProxySetting = Number(trustProxyEnv);
+  }
+} else if (process.env.NODE_ENV === 'production') {
+  trustProxySetting = 1;
+}
+
+app.set('trust proxy', trustProxySetting);
+
 // Security middleware: Helmet adds security headers
 app.use(helmet());
 

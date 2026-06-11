@@ -66,6 +66,7 @@ git push origin main
    JWT_SECRET = [your generated secret]
    NODE_ENV = production
    FRONTEND_URL = [will update after Vercel deploy]
+   TRUST_PROXY = 1
    ```
 
 6. Click **Create Web Service**
@@ -114,7 +115,7 @@ const api = axios.create({
 3. Import your GitHub repo
 4. Configure:
    - **Root Directory:** `frontend`
-   - **Framework:** `Vite`
+   - **Framework:** `Vite`V
    - **Build Command:** `npm run build`
    - **Output Directory:** `dist`
 
