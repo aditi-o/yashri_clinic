@@ -40,7 +40,7 @@ node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
 **Important for Neon:**
 - Make schema changes in `backend/prisma/schema.prisma`
 - Create a new Prisma migration for the change
-- Deploy the backend so Render runs `npx prisma migrate deploy` against Neon
+- Deploy the backend so Render runs `prisma generate` and `npx prisma migrate deploy` against Neon
 - Do not use `prisma migrate dev` on the production database
 
 ### 2.2 Push to GitHub
@@ -62,6 +62,7 @@ git push origin main
 4. Fill in:
    - **Name:** `clinic-backend`
    - **Environment:** `Node`
+   - **Build Command:** `cd backend && npm install && npx prisma migrate deploy`
    - **Build Command:** `cd backend && npm install && npx prisma migrate deploy`
    - **Start Command:** `cd backend && npm start`
    - **Region:** Choose closest to you
