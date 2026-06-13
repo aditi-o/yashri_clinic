@@ -1,5 +1,11 @@
 const prisma = require('../../config/database');
 
+const blankToNull = (value) => {
+  if (typeof value !== 'string') return value ?? null;
+  const trimmed = value.trim();
+  return trimmed === '' ? null : trimmed;
+};
+
 class AuthRepository {
   async createUserWithPatient(userData) {
     const { phone, password, ...patientData } = userData;
@@ -10,8 +16,15 @@ class AuthRepository {
         role: 'PATIENT',
         patient: {
           create: {
-            ...patientData,
-            dateOfBirth: new Date(patientData.dateOfBirth),
+            firstName: patientData.firstName,
+            lastName: patientData.lastName,
+            email: blankToNull(patientData.email),
+            dateOfBirth: patientData.dateOfBirth ? new Date(patientData.dateOfBirth) : null,
+            gender: blankToNull(patientData.gender),
+            address: blankToNull(patientData.address),
+            emergencyContact: blankToNull(patientData.emergencyContact),
+            bloodGroup: blankToNull(patientData.bloodGroup),
+            allergies: blankToNull(patientData.allergies),
           },
         },
       },

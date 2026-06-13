@@ -36,11 +36,12 @@ export const useAuthStore = create((set) => ({
     set({ loading: true, error: null });
     try {
       const response = await authService.register(data);
+      const payload = response.data?.data ?? response.data;
       const { user, token } = unwrap(response);
       localStorage.setItem('token', token);
       localStorage.setItem('user', JSON.stringify(user));
       set({ user, token, isAuthenticated: true, loading: false });
-      return { data: { user, token } };
+      return { data: { user, token, temporaryCredentials: payload?.temporaryCredentials } };
     } catch (error) {
       set({ error: error.response?.data?.message || 'Registration failed', loading: false });
       throw error;

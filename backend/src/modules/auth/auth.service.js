@@ -2,6 +2,22 @@ const authRepository = require('./auth.repository');
 const hashPassword = require('../../utils/hashPassword');
 const comparePassword = require('../../utils/comparePassword');
 const { generateToken } = require('../../utils/generateToken');
+const crypto = require('crypto');
+
+const normalizeString = (value) => (typeof value === 'string' ? value.trim() : '');
+const generateTemporaryPassword = () => crypto.randomBytes(9).toString('base64url');
+
+async function generateTemporaryPhone() {
+  for (let attempt = 0; attempt < 5; attempt += 1) {
+    const candidate = String(crypto.randomInt(1000000000, 10000000000));
+    const existingUser = await authRepository.findUserByPhone(candidate);
+    if (!existingUser) {
+      return candidate;
+    }
+  }
+
+  throw new Error('Unable to generate a temporary phone number');
+}
 
 class AuthService {
   /**
@@ -10,34 +26,47 @@ class AuthService {
    * @returns {Promise<Object>} User with token
    */
   async register(data) {
-    // Check if user already exists
-    const existingUser = await authRepository.findUserByPhone(data.phone);
-    if (existingUser) {
-      throw new Error('Phone number already registered');
+    const providedPhone = normalizeString(data.phone);
+    const providedPassword = normalizeString(data.password);
+
+    let phone = providedPhone;
+    if (phone) {
+      const existingUser = await authRepository.findUserByPhone(phone);
+      if (existingUser) {
+        throw new Error('Phone number already registered');
+      }
+    } else {
+      phone = await generateTemporaryPhone();
     }
 
-    // Hash password
-    const hashedPassword = await hashPassword(data.password);
+    const password = providedPassword || generateTemporaryPassword();
+    const hashedPassword = await hashPassword(password);
 
-    // Create user with patient profile
     const user = await authRepository.createUserWithPatient({
       ...data,
+      phone,
       password: hashedPassword,
     });
 
-    // Generate JWT token
     const token = generateToken({
       id: user.id,
       phone: user.phone,
       role: user.role,
     });
 
-    // Remove password from response
-    const { password, ...userWithoutPassword } = user;
+    const { password: _, ...userWithoutPassword } = user;
 
     return {
       user: userWithoutPassword,
       token,
+      ...(!providedPhone || !providedPassword
+        ? {
+          temporaryCredentials: {
+            ...(!providedPhone ? { phone } : {}),
+            ...(!providedPassword ? { password } : {}),
+          },
+        }
+        : {}),
     };
   }
 

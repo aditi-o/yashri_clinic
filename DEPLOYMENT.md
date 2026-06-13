@@ -37,6 +37,12 @@ PORT=5000
 node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
 ```
 
+**Important for Neon:**
+- Make schema changes in `backend/prisma/schema.prisma`
+- Create a new Prisma migration for the change
+- Deploy the backend so Render runs `npx prisma migrate deploy` against Neon
+- Do not use `prisma migrate dev` on the production database
+
 ### 2.2 Push to GitHub
 
 ```bash
@@ -115,7 +121,7 @@ const api = axios.create({
 3. Import your GitHub repo
 4. Configure:
    - **Root Directory:** `frontend`
-   - **Framework:** `Vite`V
+   - **Framework:** `Vite`
    - **Build Command:** `npm run build`
    - **Output Directory:** `dist`
 

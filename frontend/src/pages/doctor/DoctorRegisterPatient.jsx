@@ -3,19 +3,19 @@ import { useNavigate } from 'react-router-dom';
 import api from '../../services/api';
 import { Alert, Spinner, FormField } from '../../components/ui';
 
-const BLOOD = ['A+','A-','B+','B-','AB+','AB-','O+','O-'];
+const BLOOD = ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'];
 const blank = {
-  firstName:'', lastName:'', phone:'', email:'', password:'',
-  dateOfBirth:'', gender:'MALE', address:'', emergencyContact:'',
-  bloodGroup:'', allergies:'',
+  firstName: '', lastName: '', phone: '', email: '', password: '',
+  dateOfBirth: '', gender: '', address: '', emergencyContact: '',
+  bloodGroup: '', allergies: '',
 };
 
 export default function DoctorRegisterPatient() {
   const navigate = useNavigate();
-  const [saving,     setSaving]     = useState(false);
-  const [success,    setSuccess]    = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [success, setSuccess] = useState(false);
   const [registered, setRegistered] = useState(null);
-  const [error,      setError]      = useState('');
+  const [error, setError] = useState('');
   const [form, setForm] = useState({ ...blank });
 
   const set = e => {
@@ -28,8 +28,12 @@ export default function DoctorRegisterPatient() {
     setSaving(true); setError('');
     try {
       // Doctors call the public /auth/register endpoint (no token required for patient creation)
-      await api.post('/auth/register', form);
+      const response = await api.post('/auth/register', form);
+      const payload = response.data?.data ?? response.data;
       setRegistered({ firstName: form.firstName, lastName: form.lastName, phone: form.phone });
+      if (payload?.temporaryCredentials?.phone || payload?.temporaryCredentials?.password) {
+        setRegistered(prev => ({ ...prev, ...payload.temporaryCredentials }));
+      }
       setSuccess(true);
       setForm({ ...blank });
     } catch (err) {
@@ -50,18 +54,23 @@ export default function DoctorRegisterPatient() {
       <div className="card overflow-hidden p-0">
         {/* Success banner */}
         {success && registered && (
-          <div className="px-6 py-4" style={{ background:'var(--success-light)', borderBottom:'1px solid #a7f3d0' }}>
-            <p className="text-sm font-bold" style={{ color:'#065f46' }}>
+          <div className="px-6 py-4" style={{ background: 'var(--success-light)', borderBottom: '1px solid #a7f3d0' }}>
+            <p className="text-sm font-bold" style={{ color: '#065f46' }}>
               ✓ {registered.firstName} {registered.lastName} registered! (Phone: {registered.phone})
             </p>
-            <p className="text-xs mt-1 mb-3" style={{ color:'#047857' }}>
+            {registered.password && (
+              <p className="text-xs mt-1" style={{ color: '#047857' }}>
+                Temporary password: {registered.password}
+              </p>
+            )}
+            <p className="text-xs mt-1 mb-3" style={{ color: '#047857' }}>
               The patient can now log in. What would you like to do next?
             </p>
             <div className="flex gap-2 flex-wrap">
               <button
                 onClick={() => navigate('/doctor/patients')}
                 className="btn btn-sm"
-                style={{ background:'#059669', color:'white', border:'none' }}
+                style={{ background: '#059669', color: 'white', border: 'none' }}
               >
                 🔍 Find This Patient
               </button>
@@ -90,7 +99,7 @@ export default function DoctorRegisterPatient() {
             {/* Personal */}
             <div>
               <h3 className="text-xs font-bold uppercase tracking-widest mb-4 pb-2"
-                style={{ color:'var(--text-muted)', borderBottom:'1px solid var(--border)' }}>
+                style={{ color: 'var(--text-muted)', borderBottom: '1px solid var(--border)' }}>
                 👤 Personal Information
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -100,27 +109,28 @@ export default function DoctorRegisterPatient() {
                 <FormField label="Last Name" required>
                   <input name="lastName" value={form.lastName} onChange={set} className="inp" required />
                 </FormField>
-                <FormField label="Phone" required>
+                <FormField label="Phone">
                   <input name="phone" value={form.phone} onChange={set}
-                    placeholder="10-digit mobile" className="inp" required />
+                    placeholder="Optional" className="inp" />
                 </FormField>
                 <FormField label="Email">
                   <input name="email" type="email" value={form.email} onChange={set} className="inp" />
                 </FormField>
-                <FormField label="Date of Birth" required>
+                <FormField label="Date of Birth">
                   <input name="dateOfBirth" type="date" value={form.dateOfBirth} onChange={set}
-                    max={new Date().toISOString().split('T')[0]} className="inp" required />
+                    max={new Date().toISOString().split('T')[0]} className="inp" />
                 </FormField>
-                <FormField label="Gender" required>
-                  <select name="gender" value={form.gender} onChange={set} className="inp" required>
+                <FormField label="Gender">
+                  <select name="gender" value={form.gender} onChange={set} className="inp">
+                    <option value="">Select…</option>
                     <option value="MALE">Male</option>
                     <option value="FEMALE">Female</option>
                     <option value="OTHER">Other</option>
                   </select>
                 </FormField>
-                <FormField label="Login Password" required>
+                <FormField label="Login Password">
                   <input name="password" type="password" value={form.password} onChange={set}
-                    minLength={6} placeholder="Min. 6 characters" className="inp" required />
+                    minLength={6} placeholder="Optional" className="inp" />
                 </FormField>
               </div>
               <div className="mt-4">
@@ -136,7 +146,7 @@ export default function DoctorRegisterPatient() {
             {/* Medical */}
             <div>
               <h3 className="text-xs font-bold uppercase tracking-widest mb-4 pb-2"
-                style={{ color:'var(--text-muted)', borderBottom:'1px solid var(--border)' }}>
+                style={{ color: 'var(--text-muted)', borderBottom: '1px solid var(--border)' }}>
                 ❤️ Medical Details
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -151,7 +161,7 @@ export default function DoctorRegisterPatient() {
                 </FormField>
                 <FormField label="Known Allergies">
                   <input name="allergies" value={form.allergies} onChange={set}
-                    placeholder="e.g. Penicillin — or 'None'" className="inp" />
+                    placeholder="Optional" className="inp" />
                 </FormField>
               </div>
             </div>

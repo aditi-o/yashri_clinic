@@ -3,20 +3,20 @@ import { useNavigate } from 'react-router-dom';
 import { receptionistService } from '../../services/receptionistService';
 import { Alert, Spinner, FormField } from '../../components/ui';
 
-const BLOOD = ['A+','A-','B+','B-','AB+','AB-','O+','O-'];
-const blank  = {
-  firstName:'', lastName:'', phone:'', email:'', password:'',
-  dateOfBirth:'', gender:'MALE', address:'', emergencyContact:'',
-  bloodGroup:'', allergies:'',
+const BLOOD = ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'];
+const blank = {
+  firstName: '', lastName: '', phone: '', email: '', password: '',
+  dateOfBirth: '', gender: '', address: '', emergencyContact: '',
+  bloodGroup: '', allergies: '',
 };
 
 export default function RegisterPatient() {
   const navigate = useNavigate();
-  const [saving, setSaving]       = useState(false);
-  const [success, setSuccess]     = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [success, setSuccess] = useState(false);
   const [registered, setRegistered] = useState(null); // holds last registered patient info
-  const [error, setError]         = useState('');
-  const [form, setForm]           = useState({ ...blank });
+  const [error, setError] = useState('');
+  const [form, setForm] = useState({ ...blank });
 
   const set = e => {
     setForm(f => ({ ...f, [e.target.name]: e.target.value }));
@@ -28,8 +28,12 @@ export default function RegisterPatient() {
     e.preventDefault();
     setSaving(true); setError('');
     try {
-      await receptionistService.registerPatient(form);
+      const response = await receptionistService.registerPatient(form);
+      const payload = response.data?.data ?? response.data;
       setRegistered({ firstName: form.firstName, lastName: form.lastName });
+      if (payload?.temporaryCredentials?.phone || payload?.temporaryCredentials?.password) {
+        setRegistered(prev => ({ ...prev, ...payload.temporaryCredentials }));
+      }
       setSuccess(true);
       setForm({ ...blank });
     } catch (err) {
@@ -54,6 +58,16 @@ export default function RegisterPatient() {
             <p className="text-sm font-bold" style={{ color: '#065f46' }}>
               ✓ {registered.firstName} {registered.lastName} registered successfully!
             </p>
+            {registered.phone && (
+              <p className="text-xs mt-1" style={{ color: '#047857' }}>
+                Temporary login phone: {registered.phone}
+              </p>
+            )}
+            {registered.password && (
+              <p className="text-xs mt-1" style={{ color: '#047857' }}>
+                Temporary password: {registered.password}
+              </p>
+            )}
             <p className="text-xs mt-1 mb-3" style={{ color: '#047857' }}>
               What would you like to do next?
             </p>
@@ -96,27 +110,28 @@ export default function RegisterPatient() {
                 <FormField label="Last Name" required>
                   <input name="lastName" value={form.lastName} onChange={set} className="inp" required />
                 </FormField>
-                <FormField label="Phone" required>
+                <FormField label="Phone">
                   <input name="phone" value={form.phone} onChange={set}
-                    placeholder="10-digit mobile number" className="inp" required />
+                    placeholder="Optional" className="inp" />
                 </FormField>
                 <FormField label="Email">
                   <input name="email" type="email" value={form.email} onChange={set} className="inp" />
                 </FormField>
-                <FormField label="Date of Birth" required>
+                <FormField label="Date of Birth">
                   <input name="dateOfBirth" type="date" value={form.dateOfBirth} onChange={set}
-                    max={new Date().toISOString().split('T')[0]} className="inp" required />
+                    max={new Date().toISOString().split('T')[0]} className="inp" />
                 </FormField>
-                <FormField label="Gender" required>
-                  <select name="gender" value={form.gender} onChange={set} className="inp" required>
+                <FormField label="Gender">
+                  <select name="gender" value={form.gender} onChange={set} className="inp">
+                    <option value="">Select…</option>
                     <option value="MALE">Male</option>
                     <option value="FEMALE">Female</option>
                     <option value="OTHER">Other</option>
                   </select>
                 </FormField>
-                <FormField label="Password" required>
+                <FormField label="Password">
                   <input name="password" type="password" value={form.password} onChange={set}
-                    minLength={6} placeholder="Min. 6 characters" className="inp" required />
+                    minLength={6} placeholder="Optional" className="inp" />
                 </FormField>
               </div>
               <div className="mt-4">
@@ -147,7 +162,7 @@ export default function RegisterPatient() {
                 </FormField>
                 <FormField label="Known Allergies">
                   <input name="allergies" value={form.allergies} onChange={set}
-                    placeholder="e.g. Penicillin, Pollen (or 'None')" className="inp" />
+                    placeholder="Optional" className="inp" />
                 </FormField>
               </div>
             </div>

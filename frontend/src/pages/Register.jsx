@@ -3,22 +3,31 @@ import { useNavigate, Link } from 'react-router-dom';
 import { useAuthStore } from '../store/authStore';
 import { Alert, Spinner, FormField } from '../components/ui';
 
-const BLOOD = ['A+','A-','B+','B-','AB+','AB-','O+','O-'];
+const BLOOD = ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'];
 
 export default function Register() {
   const navigate = useNavigate();
   const { register, loading, error, clearError } = useAuthStore();
+  const [temporaryCredentials, setTemporaryCredentials] = useState(null);
   const [form, setForm] = useState({
-    firstName:'', lastName:'', phone:'', email:'', password:'',
-    dateOfBirth:'', gender:'MALE', address:'',
-    emergencyContact:'', bloodGroup:'', allergies:'',
+    firstName: '', lastName: '', phone: '', email: '', password: '',
+    dateOfBirth: '', gender: '', address: '',
+    emergencyContact: '', bloodGroup: '', allergies: '',
   });
 
   const set = e => { setForm(f => ({ ...f, [e.target.name]: e.target.value })); clearError(); };
 
   const submit = async e => {
     e.preventDefault();
-    try { await register(form); navigate('/dashboard'); } catch {}
+    try {
+      const result = await register(form);
+      const credentials = result?.data?.temporaryCredentials;
+      if (credentials?.phone || credentials?.password) {
+        setTemporaryCredentials(credentials);
+        return;
+      }
+      navigate('/dashboard');
+    } catch { }
   };
 
   return (
@@ -35,6 +44,25 @@ export default function Register() {
           </p>
         </div>
 
+        {temporaryCredentials && (
+          <div className="card mb-4" style={{ background: 'var(--success-light)', border: '1px solid #a7f3d0' }}>
+            <p className="text-sm font-bold" style={{ color: '#065f46' }}>Account created successfully.</p>
+            {temporaryCredentials.phone && (
+              <p className="text-xs mt-1" style={{ color: '#047857' }}>Temporary phone: {temporaryCredentials.phone}</p>
+            )}
+            {temporaryCredentials.password && (
+              <p className="text-xs mt-1" style={{ color: '#047857' }}>Temporary password: {temporaryCredentials.password}</p>
+            )}
+            <button
+              type="button"
+              onClick={() => navigate('/dashboard')}
+              className="btn btn-sm btn-secondary mt-3"
+            >
+              Continue to dashboard
+            </button>
+          </div>
+        )}
+
         <div className="card space-y-6">
           <form onSubmit={submit} className="space-y-6">
             {/* Personal section */}
@@ -46,12 +74,13 @@ export default function Register() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <FormField label="First Name" required><input name="firstName" value={form.firstName} onChange={set} className="inp" required /></FormField>
                 <FormField label="Last Name" required><input name="lastName" value={form.lastName} onChange={set} className="inp" required /></FormField>
-                <FormField label="Phone" required><input name="phone" value={form.phone} onChange={set} placeholder="10-digit" className="inp" required /></FormField>
+                <FormField label="Phone"><input name="phone" value={form.phone} onChange={set} placeholder="Optional" className="inp" /></FormField>
                 <FormField label="Email"><input name="email" type="email" value={form.email} onChange={set} className="inp" /></FormField>
-                <FormField label="Password" required><input name="password" type="password" value={form.password} onChange={set} placeholder="Min 6 characters" className="inp" minLength={6} required /></FormField>
-                <FormField label="Date of Birth" required><input name="dateOfBirth" type="date" value={form.dateOfBirth} onChange={set} className="inp" required /></FormField>
-                <FormField label="Gender" required>
-                  <select name="gender" value={form.gender} onChange={set} className="inp" required>
+                <FormField label="Password"><input name="password" type="password" value={form.password} onChange={set} placeholder="Optional" className="inp" minLength={6} /></FormField>
+                <FormField label="Date of Birth"><input name="dateOfBirth" type="date" value={form.dateOfBirth} onChange={set} className="inp" /></FormField>
+                <FormField label="Gender">
+                  <select name="gender" value={form.gender} onChange={set} className="inp">
+                    <option value="">Select…</option>
                     <option value="MALE">Male</option>
                     <option value="FEMALE">Female</option>
                     <option value="OTHER">Other</option>
@@ -82,7 +111,7 @@ export default function Register() {
                   <input name="emergencyContact" value={form.emergencyContact} onChange={set} className="inp" />
                 </FormField>
                 <FormField label="Known Allergies">
-                  <input name="allergies" value={form.allergies} onChange={set} placeholder="e.g. Penicillin, or 'None'" className="inp" />
+                  <input name="allergies" value={form.allergies} onChange={set} placeholder="Optional" className="inp" />
                 </FormField>
               </div>
             </div>

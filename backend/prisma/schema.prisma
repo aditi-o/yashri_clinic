@@ -57,8 +57,8 @@ model Patient {
   firstName        String
   lastName         String
   email            String?
-  dateOfBirth      DateTime
-  gender           String
+  dateOfBirth      DateTime?
+  gender           String?
   address          String?
   emergencyContact String?
   bloodGroup       String?
