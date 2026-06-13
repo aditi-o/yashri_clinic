@@ -62,8 +62,7 @@ git push origin main
 4. Fill in:
    - **Name:** `clinic-backend`
    - **Environment:** `Node`
-   - **Build Command:** `cd backend && npm install && npx prisma migrate deploy`
-   - **Build Command:** `cd backend && npm install && npx prisma migrate deploy`
+   - **Build Command:** `cd backend && npm install && npm run prisma:deploy`
    - **Start Command:** `cd backend && npm start`
    - **Region:** Choose closest to you
 
@@ -82,7 +81,7 @@ git push origin main
 
 ### 2.4 Seed the Database
 
-Run this in Render dashboard → **Shell**:
+Run this in Render dashboard → **Shell** if you need to seed manually:
 ```bash
 cd backend && npx prisma db seed
 ```
