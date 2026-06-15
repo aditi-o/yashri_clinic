@@ -11,6 +11,7 @@ const SLOTS = [
 
 // ── Inline Schedule Appointment Modal ────────────────────────────────────────
 function ScheduleAppointmentModal({ onClose, onScheduled }) {
+  const navigate = useNavigate();
   const [patients, setPatients] = useState([]);
   const [loadingData, setLoadingData] = useState(true);
   const [form, setForm] = useState({

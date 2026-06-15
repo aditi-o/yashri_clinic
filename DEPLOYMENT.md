@@ -125,14 +125,26 @@ const api = axios.create({
    - **Build Command:** `npm run build`
    - **Output Directory:** `dist`
 
-5. Click **Environment Variables** and add:
+5. Add a `frontend/vercel.json` rewrite so refreshes on client-side routes keep working:
+    ```json
+    {
+       "rewrites": [
+          {
+             "source": "/(.*)",
+             "destination": "/index.html"
+          }
+       ]
+    }
+    ```
+
+6. Click **Environment Variables** and add:
    ```
    VITE_API_BASE_URL = https://clinic-backend.onrender.com/api
    ```
 
-6. Click **Deploy**
-7. Wait for build (2–5 min)
-8. Copy your Vercel URL (e.g., `https://clinic-frontend.vercel.app`)
+7. Click **Deploy**
+8. Wait for build (2–5 min)
+9. Copy your Vercel URL (e.g., `https://clinic-frontend.vercel.app`)
 
 ---
 
