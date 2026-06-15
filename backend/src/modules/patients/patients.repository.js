@@ -7,8 +7,8 @@ class PatientRepository {
       where: q ? {
         OR: [
           { firstName: { contains: q, mode: 'insensitive' } },
-          { lastName:  { contains: q, mode: 'insensitive' } },
-          { email:     { contains: q, mode: 'insensitive' } },
+          { lastName: { contains: q, mode: 'insensitive' } },
+          { email: { contains: q, mode: 'insensitive' } },
           { user: { phone: { contains: q } } },
         ],
       } : undefined,
@@ -53,6 +53,12 @@ class PatientRepository {
 
   async updatePatient(patientId, data) {
     return await prisma.patient.update({ where: { id: patientId }, data });
+  }
+
+  async deletePatient(patientId) {
+    return await prisma.patient.delete({
+      where: { id: String(patientId) },
+    });
   }
 
   async getPatientHistory(patientId) {

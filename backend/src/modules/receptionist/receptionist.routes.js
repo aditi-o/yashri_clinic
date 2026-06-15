@@ -17,7 +17,7 @@ router.post('/', role(['ADMIN']), ctrl.create);
 router.get('/', role(['DOCTOR', 'ADMIN']), ctrl.list);
 router.get('/:id', role(['DOCTOR', 'ADMIN']), ctrl.getById);
 router.put('/:id', role(['ADMIN']), ctrl.update);
-router.delete('/:id', role(['ADMIN']), ctrl.softDelete);
+router.delete('/:id', role(['ADMIN']), ctrl.deletePermanent);
 router.patch('/:id/permissions', role(['ADMIN']), ctrl.updatePermissions);
 
 module.exports = router;

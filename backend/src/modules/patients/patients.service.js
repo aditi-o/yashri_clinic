@@ -27,6 +27,12 @@ class PatientService {
     return patient;
   }
 
+  async deletePatient(patientId) {
+    const patient = await patientRepository.findPatientById(patientId);
+    if (!patient) throw new Error('Patient not found');
+    return await patientRepository.deletePatient(patientId);
+  }
+
   async getPatientHistory(userId) {
     const patient = await patientRepository.findPatientByUserId(userId);
     if (!patient) throw new Error('Patient profile not found');

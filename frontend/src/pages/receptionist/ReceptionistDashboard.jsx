@@ -68,8 +68,11 @@ export default function ReceptionistDashboard() {
             </div>
           </div>
           {perms.registerPatient && (
-            <button onClick={() => navigate('/receptionist/register-patient')} className="btn btn-sm text-xs sm:text-sm"
-              style={{ background: 'rgba(255,255,255,.15)', color: 'white', border: '1px solid rgba(255,255,255,.25)', borderRadius: 10, padding: '0.4rem 0.6rem' }} className="sm:px-3 sm:py-2">
+            <button
+              onClick={() => navigate('/receptionist/register-patient')}
+              className="btn btn-sm text-xs sm:text-sm sm:px-3 sm:py-2"
+              style={{ background: 'rgba(255,255,255,.15)', color: 'white', border: '1px solid rgba(255,255,255,.25)', borderRadius: 10, padding: '0.4rem 0.6rem' }}
+            >
               + New Patient
             </button>
           )}

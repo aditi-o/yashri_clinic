@@ -58,8 +58,11 @@ export default function Dashboard() {
               <p style={{ color: '#bfdbfe', fontSize: 11, marginTop: 2 }} className="sm:text-sm sm:mt-1">Patient · ClinicMS</p>
             </div>
           </div>
-          <button onClick={() => navigate('/profile/edit')} className="btn btn-sm text-xs sm:text-sm"
-            style={{ background: 'rgba(255,255,255,0.15)', color: 'white', border: '1px solid rgba(255,255,255,0.25)', borderRadius: 10, padding: '0.4rem 0.8rem' }} className="sm:px-3 sm:py-2">
+          <button
+            onClick={() => navigate('/profile/edit')}
+            className="btn btn-sm text-xs sm:text-sm sm:px-3 sm:py-2"
+            style={{ background: 'rgba(255,255,255,0.15)', color: 'white', border: '1px solid rgba(255,255,255,0.25)', borderRadius: 10, padding: '0.4rem 0.8rem' }}
+          >
             ✏️ Edit Profile
           </button>
         </div>

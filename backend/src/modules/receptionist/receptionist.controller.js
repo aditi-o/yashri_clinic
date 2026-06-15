@@ -99,6 +99,14 @@ exports.softDelete = async (req, res) => {
   } catch (e) { err(res, e.message, 500); }
 };
 
+// ── Permanent delete ───────────────────────────────────────────────────────
+exports.deletePermanent = async (req, res) => {
+  try {
+    await repo.deleteReceptionist(req.params.id);
+    ok(res, { deleted: true });
+  } catch (e) { err(res, e.message, 500); }
+};
+
 // Backward-compatible alias for routes still using remove.
 exports.remove = exports.softDelete;
 

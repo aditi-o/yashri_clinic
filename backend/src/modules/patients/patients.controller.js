@@ -61,6 +61,16 @@ class PatientController {
     }
   }
 
+  // DELETE /patients/:id  — ADMIN: permanently remove patient and related data
+  async deletePatient(req, res) {
+    try {
+      await patientService.deletePatient(req.params.id);
+      return res.status(200).json({ success: true, message: 'Patient deleted successfully' });
+    } catch (error) {
+      return res.status(404).json({ success: false, message: error.message });
+    }
+  }
+
   // GET /patients/history  — PATIENT: own medical history
   async getHistory(req, res) {
     try {

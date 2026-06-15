@@ -16,7 +16,7 @@ const OPENROUTER_BASE = 'https://openrouter.ai/api/v1';
  */
 async function callAI(systemPrompt, userMessage) {
   const apiKey = process.env.OPENROUTER_API_KEY;
-  const model  = process.env.OPENROUTER_MODEL || 'openai/gpt-4o-mini';
+  const model = process.env.OPENROUTER_MODEL || 'openai/gpt-4o-mini';
 
   if (!apiKey) {
     throw new Error(
@@ -43,13 +43,18 @@ async function callAI(systemPrompt, userMessage) {
         temperature: 0.3, // low temperature = factual, consistent responses
         messages: [
           { role: 'system', content: systemPrompt },
-          { role: 'user',   content: userMessage  },
+          { role: 'user', content: userMessage },
         ],
       }),
     });
 
     if (!response.ok) {
       const errBody = await response.text();
+      if (response.status === 401) {
+        throw new Error(
+          'OpenRouter authentication failed. Check OPENROUTER_API_KEY and make sure it belongs to an active OpenRouter account.'
+        );
+      }
       throw new Error(`OpenRouter API error ${response.status}: ${errBody}`);
     }
 
@@ -99,8 +104,8 @@ function buildVisitContext(visits) {
 function buildPatientContext(patient) {
   const age = patient.dateOfBirth
     ? Math.floor(
-        (Date.now() - new Date(patient.dateOfBirth)) / (365.25 * 24 * 3600 * 1000)
-      )
+      (Date.now() - new Date(patient.dateOfBirth)) / (365.25 * 24 * 3600 * 1000)
+    )
     : null;
 
   return {
@@ -154,7 +159,7 @@ async function patientChat(userId, message) {
 
   // 4. Build AI context
   const patientCtx = buildPatientContext(patient);
-  const visitCtx   = buildVisitContext(visits);
+  const visitCtx = buildVisitContext(visits);
 
   const systemPrompt = `You are a helpful medical assistant for a clinic management system.
 You have access to a patient's real medical records and must answer ONLY based on that data.
@@ -271,8 +276,8 @@ VISIT HISTORY: ${JSON.stringify(visitCtx, null, 2)}`;
  */
 function extractCurrentMedications(visits) {
   const recent = visits.slice(0, 3);
-  const seen   = new Set();
-  const meds   = [];
+  const seen = new Set();
+  const meds = [];
 
   for (const visit of recent) {
     for (const p of visit.prescriptions) {

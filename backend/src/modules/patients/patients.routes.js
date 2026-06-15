@@ -1,8 +1,8 @@
 const express = require('express');
-const router  = express.Router();
+const router = express.Router();
 const patientController = require('./patients.controller');
-const authMiddleware    = require('../../middlewares/auth.middleware');
-const roleMiddleware    = require('../../middlewares/role.middleware');
+const authMiddleware = require('../../middlewares/auth.middleware');
+const roleMiddleware = require('../../middlewares/role.middleware');
 
 router.use(authMiddleware);
 
@@ -44,6 +44,11 @@ router.get('/history',
 router.get('/:id',
   roleMiddleware(['DOCTOR', 'ADMIN', 'RECEPTIONIST']),
   (req, res) => patientController.getPatientById(req, res)
+);
+
+router.delete('/:id',
+  roleMiddleware(['ADMIN']),
+  (req, res) => patientController.deletePatient(req, res)
 );
 
 module.exports = router;

@@ -90,5 +90,10 @@ exports.softDelete = (id) =>
     select: SAFE_SELECT,
   });
 
+exports.deleteReceptionist = (id) =>
+  prisma.receptionist.delete({
+    where: { id: String(id) },
+  });
+
 // Backward-compatible alias for older callers.
 exports.remove = exports.softDelete;

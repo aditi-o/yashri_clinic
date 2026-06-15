@@ -3,24 +3,28 @@ import { PageLoader, Alert, Modal, FormField, StatusBadge, EmptyState, PermToggl
 import { receptionistService } from '../../services/receptionistService';
 
 const PERMS = [
-  { key:'registerPatient',    label:'Register Patients',    icon:'👤' },
-  { key:'bookAppointment',    label:'Book Appointments',    icon:'📅' },
-  { key:'cancelAppointment',  label:'Cancel Appointments',  icon:'❌' },
-  { key:'viewMedicalHistory', label:'View Medical History', icon:'🏥' },
-  { key:'manageSchedule',     label:'Manage Schedule',      icon:'🗓️' },
-  { key:'viewBilling',        label:'View Billing',         icon:'💰' },
+  { key: 'registerPatient', label: 'Register Patients', icon: '👤' },
+  { key: 'bookAppointment', label: 'Book Appointments', icon: '📅' },
+  { key: 'cancelAppointment', label: 'Cancel Appointments', icon: '❌' },
+  { key: 'viewMedicalHistory', label: 'View Medical History', icon: '🏥' },
+  { key: 'manageSchedule', label: 'Manage Schedule', icon: '🗓️' },
+  { key: 'viewBilling', label: 'View Billing', icon: '💰' },
 ];
-const DEF = { registerPatient:true, bookAppointment:true, cancelAppointment:false,
-              viewMedicalHistory:false, manageSchedule:false, viewBilling:false };
+const DEF = {
+  registerPatient: true, bookAppointment: true, cancelAppointment: false,
+  viewMedicalHistory: false, manageSchedule: false, viewBilling: false
+};
 
 function ReceptionistForm({ initial, onClose, onDone }) {
   const isEdit = !!initial;
   const [form, setForm] = useState(
     isEdit
-      ? { firstName:initial.firstName||'', lastName:initial.lastName||'',
-          phone:initial.user?.phone||'', email:initial.email||'',
-          password:'', permissions:{ ...DEF, ...(initial.permissions||{}) } }
-      : { firstName:'', lastName:'', phone:'', email:'', password:'', permissions:{ ...DEF } }
+      ? {
+        firstName: initial.firstName || '', lastName: initial.lastName || '',
+        phone: initial.user?.phone || '', email: initial.email || '',
+        password: '', permissions: { ...DEF, ...(initial.permissions || {}) }
+      }
+      : { firstName: '', lastName: '', phone: '', email: '', password: '', permissions: { ...DEF } }
   );
   const [saving, setSaving] = useState(false);
   const [err, setErr] = useState('');
@@ -46,8 +50,8 @@ function ReceptionistForm({ initial, onClose, onDone }) {
       {err && <Alert type="error">{err}</Alert>}
       <div className="grid grid-cols-2 gap-3">
         <FormField label="First Name" required><input name="firstName" value={form.firstName} onChange={set} className="inp" required /></FormField>
-        <FormField label="Last Name"  required><input name="lastName"  value={form.lastName}  onChange={set} className="inp" required /></FormField>
-        <FormField label="Phone"      required><input name="phone" value={form.phone} onChange={set} placeholder="10-digit" className="inp" required /></FormField>
+        <FormField label="Last Name" required><input name="lastName" value={form.lastName} onChange={set} className="inp" required /></FormField>
+        <FormField label="Phone" required><input name="phone" value={form.phone} onChange={set} placeholder="10-digit" className="inp" required /></FormField>
         <FormField label="Email"><input name="email" type="email" value={form.email} onChange={set} className="inp" /></FormField>
       </div>
       <FormField label={isEdit ? 'New Password (leave blank to keep)' : 'Password'} required={!isEdit}>
@@ -75,12 +79,12 @@ function ReceptionistForm({ initial, onClose, onDone }) {
 }
 
 export default function AdminReceptionists() {
-  const [list, setList]       = useState([]);
+  const [list, setList] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showCreate, setShowCreate] = useState(false);
   const [editing, setEditing] = useState(null);
   const [success, setSuccess] = useState('');
-  const [error, setError]     = useState('');
+  const [error, setError] = useState('');
 
   const load = () => {
     setLoading(true);
@@ -93,14 +97,23 @@ export default function AdminReceptionists() {
 
   const flash = (msg, isErr = false) => {
     if (isErr) { setError(msg); setTimeout(() => setError(''), 4000); }
-    else       { setSuccess(msg); setTimeout(() => setSuccess(''), 4000); }
+    else { setSuccess(msg); setTimeout(() => setSuccess(''), 4000); }
   };
 
   const handleDeactivate = async r => {
     if (!window.confirm(`Deactivate ${r.firstName} ${r.lastName}?`)) return;
     try {
-      await receptionistService.remove(r.id);
+      await receptionistService.deactivate(r.id);
       flash(`${r.firstName} ${r.lastName} deactivated.`);
+      load();
+    } catch (e) { flash(e.response?.data?.message || 'Failed', true); }
+  };
+
+  const handleDelete = async r => {
+    if (!window.confirm(`Permanently delete ${r.firstName} ${r.lastName}? This cannot be undone.`)) return;
+    try {
+      await receptionistService.delete(r.id);
+      flash(`${r.firstName} ${r.lastName} deleted.`);
       load();
     } catch (e) { flash(e.response?.data?.message || 'Failed', true); }
   };
@@ -139,7 +152,7 @@ export default function AdminReceptionists() {
       </div>
 
       {success && <Alert type="success">{success}</Alert>}
-      {error   && <Alert type="error">{error}</Alert>}
+      {error && <Alert type="error">{error}</Alert>}
 
       <div className="tbl-wrap">
         <table className="tbl">
@@ -150,52 +163,59 @@ export default function AdminReceptionists() {
             {!list.length
               ? <tr><td colSpan={6}><EmptyState icon="🧑‍💼" title="No receptionists yet" /></td></tr>
               : list.map(r => (
-              <tr key={r.id} style={{ opacity: r.isActive ? 1 : 0.65 }}>
-                <td>
-                  <div className="flex items-center gap-2">
-                    <div style={{ width:30, height:30, borderRadius:8, flexShrink:0,
-                      background: r.isActive ? 'linear-gradient(135deg,#14b8a6,#0891b2)' : '#94a3b8',
-                      display:'flex', alignItems:'center', justifyContent:'center',
-                      color:'white', fontSize:11, fontWeight:700 }}>
-                      {r.firstName?.[0]}{r.lastName?.[0]}
+                <tr key={r.id} style={{ opacity: r.isActive ? 1 : 0.65 }}>
+                  <td>
+                    <div className="flex items-center gap-2">
+                      <div style={{
+                        width: 30, height: 30, borderRadius: 8, flexShrink: 0,
+                        background: r.isActive ? 'linear-gradient(135deg,#14b8a6,#0891b2)' : '#94a3b8',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        color: 'white', fontSize: 11, fontWeight: 700
+                      }}>
+                        {r.firstName?.[0]}{r.lastName?.[0]}
+                      </div>
+                      <span className="font-semibold text-sm">{r.firstName} {r.lastName}</span>
                     </div>
-                    <span className="font-semibold text-sm">{r.firstName} {r.lastName}</span>
-                  </div>
-                </td>
-                <td style={{ color:'var(--text-muted)' }}>{r.user?.phone || '—'}</td>
-                <td style={{ color:'var(--text-muted)' }}>{r.email || '—'}</td>
-                <td>
-                  <div className="flex flex-wrap gap-1">
-                    {PERMS.filter(p => r.permissions?.[p.key]).map(p =>
-                      <span key={p.key} className="badge badge-teal" title={p.label}>{p.icon}</span>
-                    )}
-                    {!PERMS.some(p => r.permissions?.[p.key]) && <span className="text-xs" style={{ color:'var(--text-muted)' }}>None</span>}
-                  </div>
-                </td>
-                <td><StatusBadge status={r.isActive ? 'ACTIVE' : 'INACTIVE'} /></td>
-                <td>
-                  <div className="flex items-center gap-2">
-                    <button onClick={() => setEditing(r)}
-                      className="btn btn-sm"
-                      style={{ background:'var(--brand-light)', color:'var(--brand)', border:'1px solid #bfdbfe' }}>
-                      Edit
-                    </button>
-                    {r.isActive
-                      ? <button onClick={() => handleDeactivate(r)}
+                  </td>
+                  <td style={{ color: 'var(--text-muted)' }}>{r.user?.phone || '—'}</td>
+                  <td style={{ color: 'var(--text-muted)' }}>{r.email || '—'}</td>
+                  <td>
+                    <div className="flex flex-wrap gap-1">
+                      {PERMS.filter(p => r.permissions?.[p.key]).map(p =>
+                        <span key={p.key} className="badge badge-teal" title={p.label}>{p.icon}</span>
+                      )}
+                      {!PERMS.some(p => r.permissions?.[p.key]) && <span className="text-xs" style={{ color: 'var(--text-muted)' }}>None</span>}
+                    </div>
+                  </td>
+                  <td><StatusBadge status={r.isActive ? 'ACTIVE' : 'INACTIVE'} /></td>
+                  <td>
+                    <div className="flex items-center gap-2">
+                      <button onClick={() => setEditing(r)}
+                        className="btn btn-sm"
+                        style={{ background: 'var(--brand-light)', color: 'var(--brand)', border: '1px solid #bfdbfe' }}>
+                        Edit
+                      </button>
+                      {r.isActive
+                        ? <button onClick={() => handleDeactivate(r)}
                           className="btn btn-sm"
-                          style={{ background:'var(--warning-light)', color:'#92400e', border:'1px solid #fcd34d' }}>
+                          style={{ background: 'var(--warning-light)', color: '#92400e', border: '1px solid #fcd34d' }}>
                           Deactivate
                         </button>
-                      : <button onClick={() => handleReactivate(r)}
+                        : <button onClick={() => handleReactivate(r)}
                           className="btn btn-sm"
-                          style={{ background:'var(--success-light)', color:'#065f46', border:'1px solid #6ee7b7' }}>
+                          style={{ background: 'var(--success-light)', color: '#065f46', border: '1px solid #6ee7b7' }}>
                           Reactivate
                         </button>
-                    }
-                  </div>
-                </td>
-              </tr>
-            ))}
+                      }
+                      <button onClick={() => handleDelete(r)}
+                        className="btn btn-sm"
+                        style={{ background: 'var(--danger-light)', color: '#991b1b', border: '1px solid #fca5a5' }}>
+                        Delete
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
           </tbody>
         </table>
       </div>
