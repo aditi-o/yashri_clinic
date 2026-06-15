@@ -4,19 +4,19 @@ import { receptionistService } from '../../services/receptionistService';
 import { PageLoader, Alert, Spinner, FormField } from '../../components/ui';
 
 const SLOTS = [
-  '09:00','09:30','10:00','10:30','11:00','11:30',
-  '14:00','14:30','15:00','15:30','16:00','16:30','17:00','17:30',
+  '09:00', '09:30', '10:00', '10:30', '11:00', '11:30',
+  '14:00', '14:30', '15:00', '15:30', '16:00', '16:30', '17:00', '17:30',
 ];
 
 export default function BookAppointmentReceptionist() {
   const navigate = useNavigate();
-  const [doctors,  setDoctors]  = useState([]);
+  const [doctors, setDoctors] = useState([]);
   const [patients, setPatients] = useState([]);
-  const [loading,  setLoading]  = useState(true);
-  const [saving,   setSaving]   = useState(false);
-  const [error,    setError]    = useState('');
-  const [success,  setSuccess]  = useState(false);
-  const [selDoc,   setSelDoc]   = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState('');
+  const [success, setSuccess] = useState(false);
+  const [selDoc, setSelDoc] = useState(null);
   const [form, setForm] = useState({
     patientId: '', doctorId: '', appointmentDate: '', appointmentTime: '', reason: '',
   });
@@ -47,14 +47,14 @@ export default function BookAppointmentReceptionist() {
     setSaving(true); setError('');
     try {
       await receptionistService.bookAppointment({
-        patientId:       form.patientId,
-        doctorId:        form.doctorId,
+        patientId: form.patientId,
+        doctorId: form.doctorId,
         appointmentDate: form.appointmentDate,
         appointmentTime: form.appointmentTime,
-        reason:          form.reason,
+        reason: form.reason,
       });
       setSuccess(true);
-      setForm({ patientId:'', doctorId:'', appointmentDate:'', appointmentTime:'', reason:'' });
+      setForm({ patientId: '', doctorId: '', appointmentDate: '', appointmentTime: '', reason: '' });
       setSelDoc(null);
     } catch (err) {
       setError(err.response?.data?.message || 'Failed to book appointment.');
@@ -142,13 +142,13 @@ export default function BookAppointmentReceptionist() {
 
           {/* Date & Time */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <FormField label="Appointment Date" required>
+            <FormField label="Appointment Date (optional)">
               <input name="appointmentDate" type="date" value={form.appointmentDate} onChange={set}
-                min={new Date().toISOString().split('T')[0]} className="inp" required />
+                min={new Date().toISOString().split('T')[0]} className="inp" />
             </FormField>
-            <FormField label="Time Slot" required>
-              <select name="appointmentTime" value={form.appointmentTime} onChange={set} className="inp" required>
-                <option value="">Select time…</option>
+            <FormField label="Time (optional)">
+              <select name="appointmentTime" value={form.appointmentTime} onChange={set} className="inp">
+                <option value="">Use current time</option>
                 {SLOTS.map(t => <option key={t} value={t}>{t}</option>)}
               </select>
             </FormField>

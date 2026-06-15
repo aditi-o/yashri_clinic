@@ -56,8 +56,6 @@ function ScheduleAppointmentModal({ onClose, onScheduled }) {
     e.preventDefault();
     if (!form.doctorId) return setError('Doctor profile not loaded. Please close and reopen.');
     if (!form.patientId) return setError('Please select a patient.');
-    if (!form.appointmentDate || !form.appointmentTime)
-      return setError('Please fill all required fields.');
     setSaving(true); setError('');
     try {
       const res = await api.post('/appointments', {
@@ -126,13 +124,13 @@ function ScheduleAppointmentModal({ onClose, onScheduled }) {
         </FormField>
 
         <div className="grid grid-cols-2 gap-4">
-          <FormField label="Date" required>
+          <FormField label="Date (optional)">
             <input name="appointmentDate" type="date" value={form.appointmentDate}
-              onChange={set} min={today} className="inp" required />
+              onChange={set} min={today} className="inp" />
           </FormField>
-          <FormField label="Time" required>
-            <select name="appointmentTime" value={form.appointmentTime} onChange={set} className="inp" required>
-              <option value="">Select time…</option>
+          <FormField label="Time (optional)">
+            <select name="appointmentTime" value={form.appointmentTime} onChange={set} className="inp">
+              <option value="">Use current time</option>
               {SLOTS.map(s => <option key={s} value={s}>{s}</option>)}
             </select>
           </FormField>

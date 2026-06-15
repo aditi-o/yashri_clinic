@@ -5,20 +5,20 @@ import { appointmentService } from '../services/appointmentService';
 import { Alert, Spinner, FormField, PageLoader } from '../components/ui';
 
 const SLOTS = [
-  '09:00','09:30','10:00','10:30','11:00','11:30',
-  '14:00','14:30','15:00','15:30','16:00','16:30','17:00','17:30',
+  '09:00', '09:30', '10:00', '10:30', '11:00', '11:30',
+  '14:00', '14:30', '15:00', '15:30', '16:00', '16:30', '17:00', '17:30',
 ];
 
 export default function BookAppointment() {
   const navigate = useNavigate();
-  const [doctors,  setDoctors]  = useState([]);
-  const [loading,  setLoading]  = useState(true);
-  const [saving,   setSaving]   = useState(false);
-  const [success,  setSuccess]  = useState(false);
-  const [error,    setError]    = useState('');
-  const [selDoc,   setSelDoc]   = useState(null);
+  const [doctors, setDoctors] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [success, setSuccess] = useState(false);
+  const [error, setError] = useState('');
+  const [selDoc, setSelDoc] = useState(null);
   const [form, setForm] = useState({
-    doctorId:'', appointmentDate:'', appointmentTime:'', reason:'',
+    doctorId: '', appointmentDate: '', appointmentTime: '', reason: '',
   });
 
   useEffect(() => {
@@ -70,7 +70,7 @@ export default function BookAppointment() {
       <div className="card overflow-hidden p-0">
         {success && (
           <div className="px-6 py-3.5 text-sm font-semibold"
-            style={{ background:'var(--success-light)', color:'#065f46', borderBottom:'1px solid #a7f3d0' }}>
+            style={{ background: 'var(--success-light)', color: '#065f46', borderBottom: '1px solid #a7f3d0' }}>
             ✓ Appointment booked! Redirecting…
           </div>
         )}
@@ -92,16 +92,16 @@ export default function BookAppointment() {
 
           {selDoc && (
             <div className="flex items-center gap-4 p-4 rounded-xl"
-              style={{ background:'var(--brand-light)', border:'1.5px solid #bfdbfe' }}>
+              style={{ background: 'var(--brand-light)', border: '1.5px solid #bfdbfe' }}>
               <div className="w-11 h-11 rounded-xl text-white text-sm font-bold flex items-center justify-center flex-shrink-0"
-                style={{ background:'var(--brand)' }}>
+                style={{ background: 'var(--brand)' }}>
                 {selDoc.firstName[0]}{selDoc.lastName[0]}
               </div>
               <div>
-                <p className="font-bold text-sm" style={{ color:'var(--brand-hover)' }}>
+                <p className="font-bold text-sm" style={{ color: 'var(--brand-hover)' }}>
                   Dr. {selDoc.firstName} {selDoc.lastName}
                 </p>
-                <p className="text-sm" style={{ color:'var(--brand)' }}>
+                <p className="text-sm" style={{ color: 'var(--brand)' }}>
                   {selDoc.specialization} · {selDoc.experience} yrs exp · ₹{selDoc.consultationFee} fee
                 </p>
               </div>
@@ -109,13 +109,13 @@ export default function BookAppointment() {
           )}
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <FormField label="Appointment Date" required>
+            <FormField label="Appointment Date (optional)">
               <input name="appointmentDate" type="date" value={form.appointmentDate} onChange={set}
-                min={new Date().toISOString().split('T')[0]} className="inp" required />
+                min={new Date().toISOString().split('T')[0]} className="inp" />
             </FormField>
-            <FormField label="Time Slot" required>
-              <select name="appointmentTime" value={form.appointmentTime} onChange={set} className="inp" required>
-                <option value="">Select time…</option>
+            <FormField label="Time (optional)">
+              <select name="appointmentTime" value={form.appointmentTime} onChange={set} className="inp">
+                <option value="">Use current time</option>
                 {SLOTS.map(t => <option key={t} value={t}>{t}</option>)}
               </select>
             </FormField>
