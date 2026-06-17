@@ -82,9 +82,10 @@ export default function AdminDashboard() {
       </div>
 
       {/* Quick Actions */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 sm:gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-3 sm:gap-4">
         {[
           { icon: '👨‍⚕️', label: 'Manage Doctors', path: '/admin/doctors', color: '#3b82f6', bg: '#eff6ff' },
+          { icon: '💳', label: 'Payments', path: '/admin/payments', color: '#14b8a6', bg: '#ccfbf1' },
           { icon: '👥', label: 'All Patients', path: '/admin/patients', color: '#8b5cf6', bg: '#ede9fe' },
           { icon: '📊', label: 'Analytics', path: '/admin/analytics', color: '#10b981', bg: '#d1fae5' },
           { icon: '🧑‍💼', label: 'Manage Staff', path: '/admin/receptionists', color: '#14b8a6', bg: '#ccfbf1' },

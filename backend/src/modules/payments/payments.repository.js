@@ -54,6 +54,28 @@ class PaymentRepository {
   }
 
   /**
+   * Get all payments
+   * @returns {Promise<Array>} List of payments
+   */
+  async getAllPayments() {
+    return await prisma.payment.findMany({
+      include: {
+        invoice: {
+          include: {
+            patient: {
+              select: {
+                firstName: true,
+                lastName: true,
+              },
+            },
+          },
+        },
+      },
+      orderBy: { paymentDate: 'desc' },
+    });
+  }
+
+  /**
    * Get payments by invoice ID
    * @param {string} invoiceId - Invoice ID
    * @returns {Promise<Array>} List of payments
@@ -86,6 +108,17 @@ class PaymentRepository {
         },
       },
       orderBy: { paymentDate: 'desc' },
+    });
+  }
+
+  /**
+   * Delete payment
+   * @param {string} paymentId - Payment ID
+   * @returns {Promise<Object>} Deleted payment
+   */
+  async deletePayment(paymentId) {
+    return await prisma.payment.delete({
+      where: { id: paymentId },
     });
   }
 }

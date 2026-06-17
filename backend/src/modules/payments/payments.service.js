@@ -76,6 +76,14 @@ class PaymentService {
   }
 
   /**
+   * Get all payments
+   * @returns {Promise<Array>} List of payments
+   */
+  async getAllPayments() {
+    return await paymentRepository.getAllPayments();
+  }
+
+  /**
    * Get payments by invoice ID
    * @param {string} invoiceId - Invoice ID
    * @returns {Promise<Array>} List of payments
@@ -110,6 +118,50 @@ class PaymentService {
           : totalPaidDecimal.lessThan(invoiceFinalAmount)
             ? 'PARTIAL'
             : 'PAID',
+      },
+    };
+  }
+
+  /**
+   * Delete payment and recalculate invoice status
+   * @param {string} paymentId - Payment ID
+   * @returns {Promise<Object>} Deleted payment and updated invoice summary
+   */
+  async deletePayment(paymentId) {
+    const payment = await paymentRepository.getPaymentById(paymentId);
+
+    if (!payment) {
+      throw new Error('Payment not found');
+    }
+
+    const deletedPayment = await paymentRepository.deletePayment(paymentId);
+    const invoice = await billingRepository.getInvoiceById(deletedPayment.invoiceId);
+
+    if (!invoice) {
+      return { deletedPayment };
+    }
+
+    const totalPaidDecimal = invoice.payments.reduce(
+      (sum, paymentItem) => sum.plus(new Decimal(paymentItem.amount)),
+      new Decimal(0)
+    );
+    const invoiceFinalAmount = new Decimal(invoice.finalAmount);
+    const remainingAmountDecimal = invoiceFinalAmount.minus(totalPaidDecimal);
+    const status = totalPaidDecimal.equals(0)
+      ? 'UNPAID'
+      : totalPaidDecimal.lessThan(invoiceFinalAmount)
+        ? 'PARTIAL'
+        : 'PAID';
+
+    await billingRepository.updateInvoice(invoice.id, { status });
+
+    return {
+      deletedPayment,
+      invoice: {
+        ...invoice,
+        totalPaid: Number(totalPaidDecimal.toFixed(2)),
+        remainingAmount: Number(remainingAmountDecimal.toFixed(2)),
+        status,
       },
     };
   }

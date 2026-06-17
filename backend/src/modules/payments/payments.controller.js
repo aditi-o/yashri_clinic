@@ -56,6 +56,26 @@ class PaymentController {
   }
 
   /**
+   * Get all payments
+   * GET /payments/admin/all
+   */
+  async getAllPayments(req, res) {
+    try {
+      const payments = await paymentService.getAllPayments();
+
+      return res.status(200).json({
+        success: true,
+        data: payments,
+      });
+    } catch (error) {
+      return res.status(500).json({
+        success: false,
+        message: error.message,
+      });
+    }
+  }
+
+  /**
    * Get payments by invoice ID
    * GET /payments/invoice/:invoiceId
    */
@@ -65,6 +85,27 @@ class PaymentController {
 
       return res.status(200).json({
         success: true,
+        data: result,
+      });
+    } catch (error) {
+      return res.status(404).json({
+        success: false,
+        message: error.message,
+      });
+    }
+  }
+
+  /**
+   * Delete payment
+   * DELETE /payments/:id
+   */
+  async deletePayment(req, res) {
+    try {
+      const result = await paymentService.deletePayment(req.params.id);
+
+      return res.status(200).json({
+        success: true,
+        message: 'Payment deleted successfully',
         data: result,
       });
     } catch (error) {

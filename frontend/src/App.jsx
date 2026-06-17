@@ -35,6 +35,7 @@ import AdminDoctors from './pages/admin/AdminDoctors';
 import AdminReceptionists from './pages/admin/AdminReceptionists';
 import AdminPatients from './pages/admin/AdminPatients';
 import AdminAppointments from './pages/admin/AdminAppointments';
+import AdminPayments from './pages/admin/AdminPayments';
 import AdminAnalytics from './pages/admin/AdminAnalytics';
 import AdminAI from './pages/admin/AdminAI';
 import EditAdminProfile from './pages/admin/EditAdminProfile';
@@ -79,6 +80,7 @@ export default function App() {
         <Route path="/admin/receptionists" element={P(['ADMIN'], <AdminReceptionists />)} />
         <Route path="/admin/patients" element={P(['ADMIN'], <AdminPatients />)} />
         <Route path="/admin/appointments" element={P(['ADMIN'], <AdminAppointments />)} />
+        <Route path="/admin/payments" element={P(['ADMIN'], <AdminPayments />)} />
         <Route path="/admin/analytics" element={P(['ADMIN'], <AdminAnalytics />)} />
         <Route path="/admin/ai" element={P(['ADMIN'], <AdminAI />)} />
         <Route path="/admin/profile/edit" element={P(['ADMIN'], <EditAdminProfile />)} />
