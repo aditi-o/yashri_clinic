@@ -56,6 +56,43 @@ class PaymentController {
   }
 
   /**
+   * Get admin payment stats
+   * GET /payments/admin/stats
+   */
+  async getAdminPaymentStats(req, res) {
+    try {
+      const stats = await paymentService.getAdminPaymentStats();
+      return res.status(200).json({ success: true, data: stats });
+    } catch (error) {
+      return res.status(500).json({ success: false, message: error.message });
+    }
+  }
+
+  /**
+   * Sync invoices/payments from visit fees
+   * POST /payments/admin/sync
+   */
+  async syncBillingFromVisits(req, res) {
+    try {
+      const result = await paymentService.syncBillingFromVisits();
+      return res.status(200).json({
+        success: true,
+        message: `Synced ${result.invoicesCreated} invoice(s) and ${result.paymentsCreated} payment(s) from visits.`,
+        data: result,
+      });
+    } catch (error) {
+      if (error.partial) {
+        return res.status(200).json({
+          success: true,
+          message: `Partial sync: ${error.partial.invoicesCreated} invoice(s), ${error.partial.paymentsCreated} payment(s). ${error.message}`,
+          data: error.partial,
+        });
+      }
+      return res.status(500).json({ success: false, message: error.message });
+    }
+  }
+
+  /**
    * Get all payments
    * GET /payments/admin/all
    */

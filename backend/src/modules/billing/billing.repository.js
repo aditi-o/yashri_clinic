@@ -10,42 +10,17 @@ class BillingRepository {
     const maxRetries = 3;
     for (let attempt = 1; attempt <= maxRetries; attempt += 1) {
       try {
-        return await prisma.$transaction(async (tx) => {
+        const created = await prisma.$transaction(async (tx) => {
           const invoiceNumber = data.invoiceNumber || await this._generateInvoiceNumberTx(tx);
-
           return tx.invoice.create({
             data: {
               ...data,
               invoiceNumber,
             },
-            include: {
-              visit: {
-                include: {
-                  doctor: {
-                    select: {
-                      firstName: true,
-                      lastName: true,
-                      consultationFee: true,
-                    },
-                  },
-                  prescriptions: {
-                    include: {
-                      medicine: true,
-                    },
-                  },
-                },
-              },
-              patient: {
-                select: {
-                  firstName: true,
-                  lastName: true,
-                  consultationFee: true,
-                },
-              },
-              payments: true,
-            },
           });
-        }, { isolationLevel: 'Serializable' });
+        }, { maxWait: 10000, timeout: 15000 });
+
+        return this.getInvoiceById(created.id);
       } catch (error) {
         const isUniqueViolation = error.code === 'P2002';
         if (!isUniqueViolation || attempt === maxRetries) {
@@ -171,7 +146,8 @@ class BillingRepository {
    */
   async generateInvoiceNumber() {
     return prisma.$transaction(async (tx) => this._generateInvoiceNumberTx(tx), {
-      isolationLevel: 'Serializable',
+      maxWait: 10000,
+      timeout: 15000,
     });
   }
 

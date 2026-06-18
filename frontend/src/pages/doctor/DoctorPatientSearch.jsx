@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { patientService } from '../../services/patientService';
 import api from '../../services/api';
+import { generatePrescriptionPDF } from '../../utils/prescriptionPdf';
 import { PageLoader, Spinner, EmptyState, StatusBadge, SectionHeader } from '../../components/ui';
 
 /* ── Small sub-components ─────────────────────────────────────────────── */
@@ -70,6 +71,7 @@ export default function DoctorPatientSearch() {
   const [loadingHx,  setLoadingHx]  = useState(false);
   const [openVisit,  setOpenVisit]  = useState(null);
   const [initialLoaded, setInitialLoaded] = useState(false);
+  const [downloadingId, setDownloadingId] = useState(null);
 
   // Load all patients on mount for quick browse
   useEffect(() => {
@@ -117,6 +119,20 @@ export default function DoctorPatientSearch() {
   const age = selected?.dateOfBirth
     ? Math.floor((Date.now() - new Date(selected.dateOfBirth)) / (365.25*24*3600*1000))
     : null;
+
+  const handleDownloadPdf = async (visit) => {
+    if (!visit.prescriptions?.length) return;
+    setDownloadingId(visit.id);
+    try {
+      const visitForPdf = { ...visit, patient: selected };
+      const pdf = await generatePrescriptionPDF(visitForPdf, visit.prescriptions);
+      pdf.save(`prescription-${visit.id}.pdf`);
+    } catch {
+      alert('PDF generation failed. Please try again.');
+    } finally {
+      setDownloadingId(null);
+    }
+  };
 
   return (
     <div className="anim-up">
@@ -380,12 +396,20 @@ export default function DoctorPatientSearch() {
                                     </p>
                                   )}
 
-                                  <div className="flex gap-2 pt-1">
+                                  <div className="flex gap-2 pt-1 flex-wrap">
                                     <button
                                       onClick={() => navigate(`/doctor/prescription/${v.id}`)}
                                       className="btn btn-primary btn-sm">
                                       💊 Make / Edit Prescription
                                     </button>
+                                    {v.prescriptions?.length > 0 && (
+                                      <button
+                                        onClick={() => handleDownloadPdf(v)}
+                                        disabled={downloadingId === v.id}
+                                        className="btn btn-secondary btn-sm">
+                                        {downloadingId === v.id ? 'Generating…' : '⬇ Download PDF'}
+                                      </button>
+                                    )}
                                   </div>
                                 </div>
                               )}

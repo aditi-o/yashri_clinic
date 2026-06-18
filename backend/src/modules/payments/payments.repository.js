@@ -121,6 +121,95 @@ class PaymentRepository {
       where: { id: paymentId },
     });
   }
+
+  /**
+   * Admin dashboard stats — visits (fees) + payment records + invoices
+   */
+  async getAdminPaymentStats() {
+    const todayStart = new Date();
+    todayStart.setHours(0, 0, 0, 0);
+    const todayEnd = new Date();
+    todayEnd.setHours(23, 59, 59, 999);
+
+    const [
+      payments,
+      todayPayments,
+      allVisits,
+      todayVisits,
+      invoiceCounts,
+      visitsWithoutInvoice,
+    ] = await Promise.all([
+      prisma.payment.findMany({ select: { amount: true } }),
+      prisma.payment.findMany({
+        where: { paymentDate: { gte: todayStart, lte: todayEnd } },
+        select: { amount: true },
+      }),
+      prisma.visit.findMany({ select: { visitFee: true } }),
+      prisma.visit.findMany({
+        where: { visitDate: { gte: todayStart, lte: todayEnd } },
+        select: { visitFee: true },
+      }),
+      prisma.invoice.groupBy({ by: ['status'], _count: { _all: true } }),
+      prisma.visit.count({
+        where: {
+          visitFee: { gt: 0 },
+          invoice: null,
+        },
+      }),
+    ]);
+
+    const sumAmount = (rows) => rows.reduce((s, r) => s + Number(r.amount || 0), 0);
+    const sumFee = (rows) => rows.reduce((s, r) => s + Number(r.visitFee || 0), 0);
+
+    const invoicesByStatus = invoiceCounts.reduce((acc, row) => {
+      acc[row.status] = row._count._all;
+      return acc;
+    }, {});
+
+    return {
+      paymentsCollected: sumAmount(payments),
+      todayPaymentsCollected: sumAmount(todayPayments),
+      paymentTransactions: payments.length,
+      todayPaymentTransactions: todayPayments.length,
+      visitRevenue: sumFee(allVisits),
+      todayVisitRevenue: sumFee(todayVisits),
+      totalVisits: allVisits.length,
+      todayVisits: todayVisits.length,
+      totalInvoices: Object.values(invoicesByStatus).reduce((s, n) => s + n, 0),
+      unpaidInvoices: invoicesByStatus.UNPAID ?? 0,
+      paidInvoices: invoicesByStatus.PAID ?? 0,
+      visitsPendingBilling: visitsWithoutInvoice,
+    };
+  }
+
+  /**
+   * Visits with fees that have no invoice yet (for billing sync)
+   */
+  async getVisitsPendingBilling() {
+    return prisma.visit.findMany({
+      where: {
+        visitFee: { gt: 0 },
+        invoice: null,
+      },
+      select: {
+        id: true,
+        patientId: true,
+        visitFee: true,
+        visitDate: true,
+      },
+      orderBy: { visitDate: 'asc' },
+    });
+  }
+
+  /**
+   * Invoices with no payment records yet
+   */
+  async getInvoicesWithoutPayments() {
+    return prisma.invoice.findMany({
+      where: { payments: { none: {} } },
+      include: { visit: { select: { visitFee: true } } },
+    });
+  }
 }
 
 module.exports = new PaymentRepository();

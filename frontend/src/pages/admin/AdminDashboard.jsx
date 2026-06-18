@@ -38,7 +38,8 @@ export default function AdminDashboard() {
         label: d.toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric' }),
         count: appts.filter(a => new Date(a.appointmentDate).toDateString() === d.toDateString()).length,
       }));
-      const summary = analytics?.summary ?? {};
+      const analyticsData = analytics?.data ?? {};
+      const summary = analyticsData.summary ?? {};
       setData({
         doctors: docs.length, patients: pats.length, recs: recs.length, total: appts.length,
         todayCount: appts.filter(a => new Date(a.appointmentDate).toDateString() === today).length,
@@ -46,7 +47,7 @@ export default function AdminDashboard() {
         todayRevenue: summary.todayRevenue ?? 0,
         totalRevenue: summary.totalRevenue ?? 0,
         todayPatients: summary.todayPatients ?? 0,
-        topDoctors: analytics?.topDoctors ?? [],
+        topDoctors: analyticsData.topDoctors ?? [],
       });
     }).catch(console.error).finally(() => setLoading(false));
   }, []);

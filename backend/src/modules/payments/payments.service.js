@@ -1,5 +1,6 @@
 const paymentRepository = require('./payments.repository');
 const billingRepository = require('../billing/billing.repository');
+const billingService = require('../billing/billing.service');
 const { Decimal } = require('@prisma/client/runtime/library');
 
 class PaymentService {
@@ -48,6 +49,8 @@ class PaymentService {
     } else {
       status = 'PAID';
     }
+
+    await billingRepository.updateInvoice(data.invoiceId, { status });
 
     return {
       ...payment,
@@ -173,6 +176,65 @@ class PaymentService {
    */
   async getPaymentsByPatientId(patientId) {
     return await paymentRepository.getPaymentsByPatientId(patientId);
+  }
+
+  /**
+   * Combined admin stats (visit fees + payment records)
+   */
+  async getAdminPaymentStats() {
+    return paymentRepository.getAdminPaymentStats();
+  }
+
+  /**
+   * Backfill invoices + payments from existing visits with visitFee > 0
+   */
+  async syncBillingFromVisits() {
+    const pendingVisits = await paymentRepository.getVisitsPendingBilling();
+    let invoicesCreated = 0;
+    let paymentsCreated = 0;
+    const errors = [];
+
+    for (const visit of pendingVisits) {
+      try {
+        await billingService.createInvoice({ visitId: visit.id });
+        invoicesCreated += 1;
+      } catch (error) {
+        if (!error.message?.includes('already exists')) {
+          errors.push(`Visit ${visit.id.slice(0, 8)}: ${error.message}`);
+        }
+      }
+    }
+
+    const unpaidInvoices = await paymentRepository.getInvoicesWithoutPayments();
+    for (const invoice of unpaidInvoices) {
+      const amount = Number(invoice.finalAmount);
+      if (amount <= 0) continue;
+
+      try {
+        await this.createPayment({
+          invoiceId: invoice.id,
+          amount,
+          paymentMethod: 'CASH',
+          transactionId: `VISIT-${invoice.visitId.slice(0, 8).toUpperCase()}`,
+          notes: 'Synced from visit consultation fee',
+        });
+        paymentsCreated += 1;
+      } catch (error) {
+        errors.push(`Invoice ${invoice.invoiceNumber}: ${error.message}`);
+      }
+    }
+
+    if (errors.length) {
+      const err = new Error(errors.join(' | '));
+      err.partial = { invoicesCreated, paymentsCreated, stats: await this.getAdminPaymentStats() };
+      throw err;
+    }
+
+    return {
+      invoicesCreated,
+      paymentsCreated,
+      stats: await this.getAdminPaymentStats(),
+    };
   }
 }
 

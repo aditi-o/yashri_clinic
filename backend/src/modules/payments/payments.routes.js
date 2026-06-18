@@ -11,9 +11,17 @@ router.post('/',
   roleMiddleware(['DOCTOR', 'ADMIN']),
   (req, res) => paymentController.createPayment(req, res)
 );
+router.get('/admin/stats',
+  roleMiddleware(['ADMIN']),
+  (req, res) => paymentController.getAdminPaymentStats(req, res)
+);
 router.get('/admin/all',
   roleMiddleware(['ADMIN']),
   (req, res) => paymentController.getAllPayments(req, res)
+);
+router.post('/admin/sync',
+  roleMiddleware(['ADMIN']),
+  (req, res) => paymentController.syncBillingFromVisits(req, res)
 );
 router.get('/invoice/:invoiceId',
   roleMiddleware(['DOCTOR', 'ADMIN', 'PATIENT', 'RECEPTIONIST']),
