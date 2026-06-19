@@ -4,7 +4,6 @@ import { doctorService } from '../services/doctorService';
 import { analyticsService } from '../services/analyticsService';
 import { PageLoader, StatCard, SectionHeader, StatusBadge, EmptyState } from '../components/ui';
 import api from '../services/api';
-import { downloadPrescriptionPdf } from '../utils/prescriptionPdf';
 import {
   BarChart, Bar, AreaChart, Area, ComposedChart, Line,
   XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell,
@@ -38,15 +37,8 @@ export default function DoctorDashboard() {
   const [stats, setStats] = useState({ today: 0, pending: 0, completed: 0 });
   const [downloadingPdfId, setDownloadingPdfId] = useState(null);
 
-  const handleDownloadPdf = async (visitId) => {
-    setDownloadingPdfId(visitId);
-    try {
-      await downloadPrescriptionPdf(visitId, api);
-    } catch (err) {
-      alert(err.message || 'PDF download failed. Save a prescription first.');
-    } finally {
-      setDownloadingPdfId(null);
-    }
+  const handleDownloadPdf = (visitId) => {
+    window.open(`/doctor/prescription/print/${visitId}`, '_blank');
   };
 
   useEffect(() => {
@@ -252,10 +244,9 @@ export default function DoctorDashboard() {
                         </button>
                         <button
                           onClick={() => handleDownloadPdf(a.visit.id)}
-                          disabled={downloadingPdfId === a.visit.id}
                           className="btn btn-secondary btn-sm"
-                          title="Download prescription PDF">
-                          {downloadingPdfId === a.visit.id ? '…' : '⬇ PDF'}
+                          title="Print prescription">
+                          🖨 Print
                         </button>
                       </>
                     )}

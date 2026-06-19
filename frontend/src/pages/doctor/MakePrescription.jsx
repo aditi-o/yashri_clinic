@@ -2,7 +2,6 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import api from '../../services/api';
 import { PageLoader, Alert, Spinner, FormField } from '../../components/ui';
-import { generatePrescriptionPDF } from '../../utils/prescriptionPdf';
 
 const FREQ_OPTIONS = [
   'Once daily','Twice daily','Thrice daily','Four times daily',
@@ -327,16 +326,9 @@ export default function MakePrescription() {
     } finally { setSaving(false); }
   };
 
-  const downloadPDF = async () => {
-    if (existing.length === 0) { alert('Save at least one medicine before downloading.'); return; }
-    setDownloading(true);
-    try {
-      const pdf = await generatePrescriptionPDF(visit, existing);
-      pdf.save(`prescription-${visitId}.pdf`);
-    } catch (err) {
-      console.error(err);
-      alert('PDF generation failed. Please try again.');
-    } finally { setDownloading(false); }
+  const handlePrint = () => {
+    if (existing.length === 0) { alert('Save at least one medicine before printing.'); return; }
+    window.open(`/doctor/prescription/print/${visitId}`, '_blank');
   };
 
   if (loading) return <PageLoader label="Loading visit…" />;
@@ -367,8 +359,8 @@ export default function MakePrescription() {
         </div>
         <div className="flex gap-2">
           {existing.length > 0 && (
-            <button onClick={downloadPDF} disabled={downloading} className="btn btn-primary">
-              {downloading ? <><Spinner size="sm" /> Generating…</> : '⬇ Download PDF'}
+            <button onClick={handlePrint} className="btn btn-primary">
+              🖨 Print
             </button>
           )}
           <button onClick={() => navigate(-1)} className="btn btn-secondary">← Back</button>
@@ -434,8 +426,8 @@ export default function MakePrescription() {
             ))}
           </div>
           <div className="mt-4 flex justify-end">
-            <button onClick={downloadPDF} disabled={downloading} className="btn btn-primary btn-sm">
-              {downloading ? <><Spinner size="sm" /> Generating…</> : '⬇ Download PDF'}
+            <button onClick={handlePrint} className="btn btn-primary btn-sm">
+              🖨 Print
             </button>
           </div>
         </div>
@@ -538,8 +530,8 @@ export default function MakePrescription() {
           {saving ? <><Spinner size="sm" /> Saving…</> : '💾 Save Prescription'}
         </button>
         {existing.length > 0 && (
-          <button type="button" onClick={downloadPDF} disabled={downloading} className="btn btn-secondary py-2.5">
-            {downloading ? <><Spinner size="sm" /> …</> : '⬇ PDF'}
+          <button type="button" onClick={handlePrint} className="btn btn-secondary py-2.5">
+            🖨 Print
           </button>
         )}
       </div>

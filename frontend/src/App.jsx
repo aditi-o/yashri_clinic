@@ -20,6 +20,7 @@ import DoctorAIAssistant from './pages/doctor/DoctorAIAssistant';
 import DoctorRegisterPatient from './pages/doctor/DoctorRegisterPatient';
 import DoctorPatientSearch from './pages/doctor/DoctorPatientSearch';
 import MakePrescription from './pages/doctor/MakePrescription';
+import PrescriptionPrint from './pages/doctor/PrescriptionPrint';
 import ManageReceptionists from './pages/receptionist/ManageReceptionists';
 
 // Receptionist
@@ -61,6 +62,7 @@ export default function App() {
         <Route path="/doctor-dashboard" element={P(['DOCTOR'], <DoctorDashboard />)} />
         <Route path="/create-visit/:appointmentId?" element={P(['DOCTOR'], <CreateVisit />)} />
         <Route path="/doctor/prescription/:visitId" element={P(['DOCTOR'], <MakePrescription />)} />
+        <Route path="/doctor/prescription/print/:visitId" element={P(['DOCTOR'], <PrescriptionPrint />)} />
         <Route path="/doctor/profile/edit" element={P(['DOCTOR'], <EditDoctorProfile />)} />
         <Route path="/doctor/ai-assistant" element={P(['DOCTOR'], <DoctorAIAssistant />)} />
         <Route path="/doctor/register-patient" element={P(['DOCTOR'], <DoctorRegisterPatient />)} />
